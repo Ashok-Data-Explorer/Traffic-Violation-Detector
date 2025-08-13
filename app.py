@@ -1,4 +1,4 @@
-# app_streamlit_live_camera_stats.py
+# app_streamlit_live_camera_final.py
 import io
 from datetime import datetime
 import time
@@ -131,7 +131,7 @@ if start_btn:
             break
 
     cap.release()
-    cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()  # Removed for Streamlit web deployment
 
 # -------------------- Save log --------------------
 if log:
