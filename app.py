@@ -19,6 +19,8 @@ if 'violation_count' not in st.session_state:
     st.session_state.violation_count = 0
 if 'running' not in st.session_state:
     st.session_state.running = False
+if 'cap' not in st.session_state:
+    st.session_state.cap = None
 
 # Sidebar controls
 stop_line_y = st.sidebar.slider("Stop Line Y Position", 100, 600, 300)
@@ -29,8 +31,16 @@ cap_source = st.sidebar.text_input("Camera Source (0 for webcam or IP URL)", "0"
 col1, col2 = st.sidebar.columns(2)
 if col1.button("Start"):
     st.session_state.running = True
+    try:
+        cap_source_val = int(cap_source)
+    except ValueError:
+        cap_source_val = cap_source
+    st.session_state.cap = cv2.VideoCapture(cap_source_val)
 if col2.button("Stop"):
     st.session_state.running = False
+    if st.session_state.cap:
+        st.session_state.cap.release()
+        st.session_state.cap = None
 
 # Download log
 if st.sidebar.button("Download Log as Excel"):
@@ -74,22 +84,12 @@ def process_frame(frame):
     return frame
 
 # Main loop
-if st.session_state.running:
-    try:
-        cap_source_val = int(cap_source)
-    except ValueError:
-        cap_source_val = cap_source
-
-    cap = cv2.VideoCapture(cap_source_val)
-
-    while st.session_state.running:
-        ret, frame = cap.read()
-        if not ret:
-            st.error("Camera feed not available.")
-            break
-
+if st.session_state.running and st.session_state.cap:
+    ret, frame = st.session_state.cap.read()
+    if not ret:
+        st.error("Camera feed not available.")
+    else:
         frame = process_frame(frame)
         frame_window.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    cap.release()
 else:
     st.info("Click Start to run detection.")
