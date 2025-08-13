@@ -1,4 +1,4 @@
-# app_streamlit_live_camera_fps.py
+# app_streamlit_live_camera_stats.py
 import io
 from datetime import datetime
 import time
@@ -48,8 +48,7 @@ class_names = model.names
 
 # -------------------- Logs & stats --------------------
 log = []
-passes = 0
-violations = 0
+stats = {"passes": 0, "violations": 0}
 
 # -------------------- Camera input --------------------
 st.header("Live Camera Feed with FPS Limit")
@@ -97,14 +96,13 @@ if start_btn:
                 vtype = class_names.get(cls_id, str(cls_id))
                 bottom_y = y2
 
-                global passes, violations
                 if bottom_y >= line_y:
                     action = "Violation" if red_is_on() else "Pass"
                     if action == "Violation":
-                        violations += 1
+                        stats["violations"] += 1
                         color = (0,0,255)
                     else:
-                        passes += 1
+                        stats["passes"] += 1
                         color = (0,255,0)
                     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     log.append({
@@ -123,8 +121,8 @@ if start_btn:
         # Overlay stats
         cv2.rectangle(annotated, (5,4), (300,60), (255,255,255), -1)
         cv2.rectangle(annotated, (5,4), (300,60), (0,0,0), 2)
-        cv2.putText(annotated, f"Passes: {passes}", (15,28), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0,128,0), 2)
-        cv2.putText(annotated, f"Violations: {violations}", (15,50), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0,0,200), 2)
+        cv2.putText(annotated, f"Passes: {stats['passes']}", (15,28), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0,128,0), 2)
+        cv2.putText(annotated, f"Violations: {stats['violations']}", (15,50), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0,0,200), 2)
 
         # Show frame
         stframe.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB), channels="RGB")
