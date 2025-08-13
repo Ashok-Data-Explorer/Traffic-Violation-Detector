@@ -63,3 +63,4 @@ ultralytics-thop==2.0.15
 urllib3==2.5.0
 watchdog==6.0.0
 opencv-python
+av
